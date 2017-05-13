@@ -1,0 +1,92 @@
+---
+- name: Compare the tkl_core final settings
+  hosts: [ 'tkl_core' ]
+  gather_facts: False
+  become: True
+
+  tasks:
+    - name: apt post configured sources
+      shell: apt-cache policy | grep -v 'irqbalance'
+      register: apt_src_post
+
+    - name: debug apt configured sources
+      debug:
+        msg: '{{ item.0 + " : " + item.1 }}'
+      with_together:
+        - '{{ apt_src_pre.stdout_lines }}'
+        - '{{ apt_src_post.stdout_lines }}'
+      when: apt_src_pre.stdout_lines != apt_src_post.stdout_lines and item.0 != item.1
+
+    - name: compare apt configured sources
+      assert:
+        that: "apt_src_pre.stdout_lines == apt_src_post.stdout_lines"
+        msg: apt configured sources are different from initial
+
+    - name: apt post configured keys
+      command: apt-key list
+      register: apt_key_post
+
+    - name: debug apt configured keys
+      debug:
+        msg: '{{ item.0 + " : " + item.1 }}'
+      with_together:
+        - '{{ apt_key_pre.stdout_lines }}'
+        - '{{ apt_key_post.stdout_lines }}'
+      when: apt_key_pre.stdout_lines != apt_key_post.stdout_lines and item.0 != item.1
+
+    - name: compare apt configured keys
+      assert:
+        that: "apt_key_pre.stdout_lines == apt_key_post.stdout_lines"
+        msg: apt configured keys are different from initial
+
+    - name: apt post installed packages
+      shell: apt list --installed | grep -v 'cracklib' | grep -v 'gnutls-bin' | grep -v 'libapt-inst' | grep -v 'libcrack2' | grep -v 'libgpm2' | grep -v 'make' | grep -v 'postfix-pcre' | grep -v 'python-apt' | grep -v 'python-apt-common' | grep -v 'python-chardet' | grep -v 'python-colorama' | grep -v 'python-distlib' | grep -v 'python-html5lib' | grep -v 'python-pip' | grep -v 'python-pkg-resources' | grep -v 'python-requests' | grep -v 'python-setuptools' | grep -v 'python-urllib3' | grep -v 'sudo' | grep -v 'vim' | grep -v 'vim-runtime' | grep -v 'wamerican' | grep -v 'libcap2-bin' | grep -v 'libopts25'
+      register: apt_pkg_post
+
+    - name: debug apt installed packages
+      debug:
+        msg: '{{ item.0 + " : " + item.1 }}'
+      with_together:
+        - '{{ apt_pkg_pre.stdout_lines }}'
+        - '{{ apt_pkg_post.stdout_lines }}'
+      when: apt_pkg_pre.stdout_lines != apt_pkg_post.stdout_lines and item.0 != item.1
+
+    - name: compare apt installed packages
+      assert:
+        that: "apt_pkg_pre.stdout_lines == apt_pkg_post.stdout_lines"
+        msg: apt installed packages are different from initial
+
+    - name: postfix post settings
+      shell: postconf | grep -v 'process_id' | grep -v 'uucp_' | grep -v 'inet_interfaces = loopback-only' | grep -v 'mydestination' | grep -v 'mydomain' | grep -v 'myhostname' | grep -v 'mynetworks = 127.0.0.0/8, \[::ffff:127.0.0.0\]/104, \[::1\]/128' | grep -v 'myorigin' | grep -v 'smtp_helo_name' | grep -v 'smtp_tls_' | grep -v 'smtpd_client_restrictions = permit_mynetworks' | grep -v 'smtpd_recipient_restrictions = permit_mynetworks, reject_unauth_destination' | grep -v 'smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, defer_unauth_destination' | grep -v 'smtpd_tls_' | grep -v 'smtpd_use_tls = no' | grep -v 'tls_'
+      register: postfix_post
+
+    - name: debug postfix settings
+      debug:
+        msg: '{{ item.0 + " : " + item.1 }}'
+      with_together:
+        - '{{ postfix_pre.stdout_lines }}'
+        - '{{ postfix_post.stdout_lines }}'
+      when: postfix_pre.stdout_lines != postfix_post.stdout_lines and item.0 != item.1
+
+    - name: compare postfix settings
+      assert:
+        that: "postfix_pre.stdout_lines == postfix_post.stdout_lines"
+        msg: postfix configuration is different from initial
+
+    - name: sshd post settings
+      shell: sshd -T | grep -v 'banner' | grep -v 'subsystem sftp internal-sftp'
+      register: sshd_post
+
+    - name: debug sshd settings
+      debug:
+        msg: '{{ item.0 + " : " + item.1 }}'
+      with_together:
+        - '{{ sshd_pre.stdout_lines }}'
+        - '{{ sshd_post.stdout_lines }}'
+      when: sshd_pre.stdout_lines != sshd_post.stdout_lines and item.0 != item.1
+
+    - name: compare sshd settings
+      assert:
+        that: "sshd_pre.stdout_lines == sshd_post.stdout_lines"
+        msg: sshd configuration is different from initial
+

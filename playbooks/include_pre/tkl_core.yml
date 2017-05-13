@@ -1,0 +1,27 @@
+---
+- name: Capture the tkl_core initial settings
+  hosts: [ 'tkl_core' ]
+  gather_facts: False
+  become: True
+
+  tasks:
+    - name: apt pre configured sources
+      shell: apt-cache policy | grep -v 'irqbalance'
+      register: apt_src_pre
+
+    - name: apt pre configured keys
+      command: apt-key list
+      register: apt_key_pre
+
+    - name: apt pre installed packages
+      shell: apt list --installed | grep -v 'cracklib' | grep -v 'gnutls-bin' | grep -v 'libapt-inst' | grep -v 'libcrack2' | grep -v 'libgpm2' | grep -v 'make' | grep -v 'postfix-pcre' | grep -v 'python-apt' | grep -v 'python-apt-common' | grep -v 'python-chardet' | grep -v 'python-colorama' | grep -v 'python-distlib' | grep -v 'python-html5lib' | grep -v 'python-pip' | grep -v 'python-pkg-resources' | grep -v 'python-requests' | grep -v 'python-setuptools' | grep -v 'python-urllib3' | grep -v 'sudo' | grep -v 'vim' | grep -v 'vim-runtime' | grep -v 'wamerican' | grep -v 'libcap2-bin' | grep -v 'libopts25'
+      register: apt_pkg_pre
+
+    - name: postfix pre settings
+      shell: postconf | grep -v 'process_id' | grep -v 'uucp_' | grep -v 'inet_interfaces = localhost' | grep -v 'mydestination' | grep -v 'mydomain' | grep -v 'myhostname' | grep -v 'mynetworks = 127.0.0.0/8 \[::ffff:127.0.0.0\]/104 \[::1\]/128' | grep -v 'myorigin' | grep -v 'smtp_helo_name' | grep -v 'smtp_tls_' | grep -v 'smtpd_client_restrictions =' | grep -v 'smtpd_recipient_restrictions =' | grep -v 'smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination' | grep -v 'smtpd_tls_' | grep -v 'smtpd_use_tls = yes' | grep -v 'tls_'
+      register: postfix_pre
+
+    - name: sshd pre settings
+      shell: sshd -T | grep -v 'subsystem sftp /usr/lib/openssh/sftp-server'
+      register: sshd_pre
+

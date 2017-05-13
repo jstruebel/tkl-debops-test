@@ -1,0 +1,7 @@
+---
+- include: include_pre/tkl_core.yml
+
+- include: site.yml
+
+- include: include_post/tkl_core.yml
+
