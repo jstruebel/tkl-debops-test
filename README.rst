@@ -34,7 +34,7 @@ ansible/inventory/hosts file in the project directory must be edited to
 add the host for each appliance to the appropriate group. The simplest
 is to run the tests from within the appliance itself in which case the
 localhost needs to be added to the group for that appliance. The group
-names are just the appliance name prefixed with "tkl_". The tests can
+names are just the appliance name prefixed with 'tkl_'. The tests can
 also be run against a remote host if that is preferred.
 
 Each appliance has its own playbook which saves the initial configuration of
@@ -55,4 +55,5 @@ test playbook should be added to this project.
 To contribute, fork `this repository`_ and issue a pull request on Github.
 
 .. _tkl-debops: https://github.com/jstruebel/tkl-debops
-.. _this repository: https://github.com/jstruebel/tkl-debops-tests
+.. _Ansible Turnkey appliance: https://www.turnkeylinux.org/ansible
+.. _this repository: https://github.com/jstruebel/tkl-debops-test
