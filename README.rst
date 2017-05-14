@@ -1,7 +1,7 @@
 DebOps for Turnkey Tests
 ========================
 
-"DebOps for Turnkey Tests", aka tkl-debops-tests, is a set of tests to
+"DebOps for Turnkey Tests", aka tkl-debops-test, is a set of tests to
 validate that the settings of the Turnkey Linux appliances aren't changed
 after running the `tkl-debops`_ playbooks.
 
@@ -15,10 +15,10 @@ to be run to install and configure tkl-debops for use::
     $ sudo apt-get install python-pip
     $ sudo pip install debops
     $ debops-update
-    $ git clone https://github.com/jstruebel/tkl-debops-tests.git
-    $ cd tkl-debops-tests
+    $ git clone https://github.com/jstruebel/tkl-debops-test.git
+    $ cd tkl-debops-test
     $ git clone https://github.com/jstruebel/tkl-debops.git
-    $ ./tkl-debops-tests-init
+    $ ./tkl-debops-test-init
 
 Some of the roles in DebOps require Ansible > 1.9 which is the version included
 with Turnkey v14.1. To update to the latest Ansible version run the following
