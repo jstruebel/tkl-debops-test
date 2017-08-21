@@ -1,0 +1,29 @@
+#! /bin/bash
+
+usage() {
+cat<<EOF
+Usage: $(basename $0) appliance port
+Run the test suite against the tkl-debops plays using a fresh appliance image.
+This test uses the Turnkey Linux LXC appliance to host the appliance that the
+test is run against.
+
+Arguments:
+    appliance       Name of the Turnkey Linux appliance
+    port            Port used on the LXC appliance to expose SSH
+                    to the test appliance
+EOF
+exit 1
+}
+
+if [[ "$#" != "2" ]]; then
+    usage
+fi
+
+APP_NAME=$1
+APP_PORT=$2
+APP_PASSWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+
+ansible-playbook playbooks/start_app.yml --extra-vars "app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"
+ansible-playbook playbooks/update_app.yml --extra-vars "app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"
+debops tkl_core
+ansible-playbook playbooks/stop_app.yml --extra-vars "app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"

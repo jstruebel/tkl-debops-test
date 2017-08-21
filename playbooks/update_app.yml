@@ -1,0 +1,16 @@
+---
+
+- name: Update appliance packages and restart
+  hosts: tkl_core
+  become: True
+
+  tasks:
+    - name: Upgrade all installed packages
+      shell: apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -q -y upgrade
+
+    - name: Restart container
+      command: shutdown -r now
+
+    - name: Wait for appliance container to reboot
+      wait_for_connection:
+        delay: 20

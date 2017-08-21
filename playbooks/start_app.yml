@@ -1,0 +1,105 @@
+---
+
+- name: Start appliance with default config
+  hosts: lxc_hosts
+  become: True
+
+  vars:
+    app_name: 'core'
+    app_passwd: 'appTest1234'
+    app_email: 'admin@example.com'
+    app_domain: 'www.example.com'
+    app_port: 2222
+    inithooks_path: '/tmp/inithooks.conf'
+    host_ipv4: '{{ ansible_br0.ipv4.address }}'
+
+  tasks:
+    - name: Setup default appliance config
+      template:
+        src: templates/inithooks.conf.j2
+        dest: '{{ inithooks_path }}'
+
+    - name: Start container running appliance with default config
+      lxc_container:
+        name: '{{ app_name }}'
+        config: '/etc/lxc/natbridge.conf'
+        template: 'turnkey'
+        template_options: '{{ app_name }} --aptproxy=http://192.168.121.1:3142 --inithooks={{ inithooks_path }}'
+        state: 'started'
+
+    - name: Wait for appliance container to request a dhcp lease
+      command: cat /var/lib/misc/dnsmasq.leases
+      register: output
+      until: output.stdout.find( app_name ) != -1
+      retries: 10
+      delay: 10
+
+    - name: Configure iptables NAT PREROUTING for ssh access
+      iptables:
+        table: 'nat'
+        chain: 'PREROUTING'
+        action: 'append'
+        protocol: 'tcp'
+        destination_port: '{{ app_port }}'
+        jump: 'DNAT'
+        to_destination: "{{ lookup('dig', app_name, '@' + host_ipv4) }}:22"
+        state: 'present'
+
+    - name: Configure iptables FORWARD for ssh access
+      iptables:
+        chain: 'FORWARD'
+        action: 'insert'
+        protocol: 'tcp'
+        destination: "{{ lookup('dig', app_name, '@' + host_ipv4) }}/32"
+        destination_port: '{{ app_port }}'
+        ctstate: 'NEW'
+        match: 'tcp'
+        jump: 'ACCEPT'
+        state: 'present'
+
+    - name: Remove default appliance config
+      file:
+        path: '{{ inithooks_path }}'
+        state: 'absent'
+
+    - name: Make variables persistent
+      set_fact:
+        app_name: '{{ app_name }}'
+        app_port: '{{ app_port }}'
+        app_passwd: '{{ app_passwd }}'
+        host_ipv4: '{{ host_ipv4 }}'
+
+- name: Local setup to enable ansible to access newly created appliance
+  hosts: lxc_hosts
+  connection: local
+  gather_facts: False
+
+  vars:
+    inv_hosts_path: '{{ playbook_dir }}/../ansible/inventory/inv_{{ app_name }}_{{ app_port }}'
+
+  tasks:
+    - name: Create ansible inventory file
+      template:
+        src: templates/inv_host.j2
+        dest: '{{ inv_hosts_path }}'
+
+    - name: Check if known_hosts contains server's fingerprint
+      command: ssh-keygen -F '[{{ ansible_host }}]:{{ app_port }}'
+      register: keygen
+      failed_when: keygen.stderr != ''
+      changed_when: False
+
+    - name: fetch remote ssh key
+      shell: ssh-keyscan -T5 -p {{ app_port }} {{ ansible_host }} | grep ^{{ ansible_host }} | sed 's/{{ ansible_host }}/[{{ ansible_host }}]:{{ app_port }}/'
+      register: keyscan
+      failed_when: keyscan.rc != 0 or keyscan.stdout == ''
+      changed_when: False
+      when: keygen.rc == 1
+
+    - name: add ssh-key to local known_hosts
+      lineinfile:
+        name: ~/.ssh/known_hosts
+        create: yes
+        line: "{{ item }}"
+      when: keygen.rc == 1
+      with_items: '{{ keyscan.stdout_lines|default([]) }}'

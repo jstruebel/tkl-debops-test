@@ -1,0 +1,60 @@
+---
+
+- name: Stop appliance and remove container
+  hosts: lxc_hosts
+  become: True
+
+  vars:
+    app_name: 'core'
+    app_port: 2222
+    host_ipv4: '{{ ansible_br0.ipv4.address }}'
+
+  tasks:
+    - name: Remove iptables NAT PREROUTING for ssh access
+      iptables:
+        table: 'nat'
+        chain: 'PREROUTING'
+        action: 'append'
+        protocol: 'tcp'
+        destination_port: '{{ app_port }}'
+        jump: 'DNAT'
+        to_destination: "{{ lookup('dig', app_name, '@' + host_ipv4) }}:22"
+        state: 'absent'
+
+    - name: Remove iptables FORWARD for ssh access
+      iptables:
+        chain: 'FORWARD'
+        action: 'insert'
+        protocol: 'tcp'
+        destination: "{{ lookup('dig', app_name, '@' + host_ipv4) }}/32"
+        destination_port: '{{ app_port }}'
+        ctstate: 'NEW'
+        match: 'tcp'
+        jump: 'ACCEPT'
+        state: 'absent'
+
+    - name: Stop and remove container
+      command: lxc-destroy -f -n {{ app_name }}
+
+    - name: Make variables persistent
+      set_fact:
+        app_name: '{{ app_name }}'
+        app_port: '{{ app_port }}'
+
+- name: Local setup to clean-up references to appliance
+  hosts: lxc_hosts
+  connection: local
+  gather_facts: False
+
+  vars:
+    inv_hosts_path: '{{ playbook_dir }}/../ansible/inventory/inv_{{ app_name }}_{{ app_port }}'
+
+  tasks:
+    - name: Delete ansible inventory file
+      file:
+        path: '{{ inv_hosts_path }}'
+        state: 'absent'
+
+    - name: Remove ssh key from known_hosts
+      command: ssh-keygen -R '[{{ ansible_host }}]:{{ app_port }}'
+      register: keygen

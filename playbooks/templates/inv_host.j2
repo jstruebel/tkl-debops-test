@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+
+{{ app_name }} ansible_host={{ host_ipv4 }} ansible_port={{ app_port }} ansible_user=root ansible_ssh_pass={{ app_passwd }}
+
+[tkl_{{ app_name }}]
+{{ app_name }}
+
