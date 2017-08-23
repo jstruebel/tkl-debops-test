@@ -6,6 +6,6 @@
 
   tasks:
     - name: samba pre settings
-      shell: testparm -sv | grep -v 'netbios name'
+      shell: testparm -sv | grep -v 'netbios name' | grep -v 'null passwords = No' | grep -v 'restrict anonymous = 2' | grep -v 'recycle:' | grep -v 'vfs objects = recycle'
       register: samba_pre
 

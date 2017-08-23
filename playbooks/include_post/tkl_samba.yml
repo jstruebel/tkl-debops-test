@@ -6,7 +6,7 @@
 
   tasks:
     - name: samba post settings
-      shell: testparm -sv | grep -v 'netbios name'
+      shell: testparm -sv | grep -v 'netbios name' | grep -v 'null passwords = Yes' | grep -v 'restrict anonymous = 0' | grep -v 'vfs objects = '
       register: samba_post
 
     - name: debug samba settings
