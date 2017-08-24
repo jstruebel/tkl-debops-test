@@ -25,5 +25,10 @@ APP_PASSWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
 ansible-playbook playbooks/start_app.yml --extra-vars "app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"
 ansible-playbook playbooks/update_app.yml --extra-vars "app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"
+
 debops tkl_core
+RETVAL=$?
+
 ansible-playbook playbooks/stop_app.yml --extra-vars "app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"
+
+exit $RETVAL
