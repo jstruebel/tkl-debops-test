@@ -6,17 +6,17 @@
     - ./test_app $APP_NAME $APP_PORT
 
 variables:
-  TKL_DEBOPS_REPO: http://192.168.4.141/gitlab-admin/tkl-debops.git
-  LXC_HOST: 192.168.4.146
+  TKL_DEBOPS_REPO: "http://192.168.4.141/gitlab-admin/tkl-debops.git"
+  LXC_HOST: "192.168.4.146"
 
 test_core:
   <<: *job_definition
   variables:
-    APP_NAME: core
-    APP_PORT: 2222
+    APP_NAME: "core"
+    APP_PORT: "2222"
 
 test_fileserver:
   <<: *job_definition
   variables:
-    APP_NAME: fileserver
-    APP_PORT: 2223
+    APP_NAME: "fileserver"
+    APP_PORT: "2223"
