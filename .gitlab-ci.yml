@@ -1,0 +1,22 @@
+.job_template: &job_definition
+  script:
+    - git clone $TKL_DEBOPS_REPO
+    - ansible-playbook playbooks/setup.yml
+    - echo "lxc-host ansible_host=$LXC_HOST ansible_user=root ansible_ssh_private_key_file=/ssh/id_rsa ansible_ssh_common_args='-o GlobalKnownHostsFile=/ssh/known_hosts'\n[lxc-hosts]\nlxc-host" > ansible/inventory/hosts
+    - ./test_app $APP_NAME $APP_PORT
+
+variables:
+  TKL_DEBOPS_REPO: http://192.168.4.141/gitlab-admin/tkl-debops.git
+  LXC_HOST: 192.168.4.146
+
+test_core:
+  <<: *job_definition
+  variables:
+    APP_NAME: core
+    APP_PORT: 2222
+
+test_fileserver:
+  <<: *job_definition
+  variables:
+    APP_NAME: fileserver
+    APP_PORT: 2223
