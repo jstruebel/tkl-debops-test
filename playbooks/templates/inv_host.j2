@@ -5,5 +5,8 @@
 [tkl_{{ app_name }}]
 {{ app_name }}
 
+{% if app_name == "openldap" %}
 [tkl_openldap:vars]
 slapd_domain=example.com
+{% endif %}
+
