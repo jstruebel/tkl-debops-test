@@ -26,10 +26,7 @@ APP_PASSWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 EXTRA_VARS="app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"
 
 debops playbooks/start_app.yml --extra-vars "$EXTRA_VARS"
-cat ansible.cfg
-ls -la ansible/inventory
-cat ansible/inventory/inv_${APP_NAME}_${APP_PORT}
-debops playbooks/update_app.yml --extra-vars "$EXTRA_VARS" -vvv
+debops playbooks/update_app.yml --extra-vars "$EXTRA_VARS"
 
 debops tkl_core
 RETVAL=$?
