@@ -2,8 +2,7 @@
   script:
     - git clone $TKL_DEBOPS_REPO
     - ansible-playbook playbooks/setup.yml
-    - echo -e "cat > ansible/inventory/hosts <<EOF\nlxc-host ansible_host=$LXC_HOST ansible_user=root ansible_ssh_private_key_file=/ssh/id_rsa ansible_ssh_common_args='-o GlobalKnownHostsFile=/ssh/known_hosts'\n\n[lxc-hosts]\nlxc-host\nEOF" | bash
-    - cat ansible/inventory/hosts
+    - echo -e "cat > ansible/inventory/hosts <<EOF\nlxc-host ansible_host=$LXC_HOST ansible_user=root ansible_ssh_private_key_file=/ssh/id_rsa ansible_ssh_common_args='-o GlobalKnownHostsFile=/ssh/known_hosts'\n\n[lxc_hosts]\nlxc-host\nEOF" | bash
     - ./test_app $APP_NAME $APP_PORT
 
 variables:
