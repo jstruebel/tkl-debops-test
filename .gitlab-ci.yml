@@ -1,6 +1,8 @@
 .job_template: &job_definition
   script:
     - git clone $TKL_DEBOPS_REPO
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
     - touch ~/.ssh/known_hosts
     - ansible-playbook playbooks/setup.yml
     - ls -la
