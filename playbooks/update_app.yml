@@ -2,9 +2,14 @@
 
 - name: Update appliance packages and restart
   hosts: tkl_core
+  gather_facts: False
   become: True
 
   tasks:
+    - name: Wait for appliance container to be available
+      wait_for_connection:
+        delay: 20
+
     - name: Upgrade all installed packages
       shell: apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -q -y upgrade
 
