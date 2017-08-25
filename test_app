@@ -23,12 +23,14 @@ APP_NAME=$1
 APP_PORT=$2
 APP_PASSWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
-debops start_app --extra-vars "app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"
-debops update_app --extra-vars "app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"
+EXTRA_VARS="app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"
+
+debops playbooks/start_app.yml --extra-vars "$EXTRA_VARS"
+debops playbooks/update_app.yml --extra-vars "$EXTRA_VARS"
 
 debops tkl_core
 RETVAL=$?
 
-debops stop_app --extra-vars "app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"
+debops playbooks/stop_app.yml --extra-vars "$EXTRA_VARS"
 
 exit $RETVAL
