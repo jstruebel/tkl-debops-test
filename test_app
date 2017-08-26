@@ -28,7 +28,7 @@ EXTRA_VARS="app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"
 debops playbooks/start_app.yml --extra-vars "$EXTRA_VARS"
 debops playbooks/update_app.yml --extra-vars "$EXTRA_VARS"
 
-debops tkl_core
+debops tkl_${APP_NAME}
 RETVAL=$?
 
 debops playbooks/stop_app.yml --extra-vars "$EXTRA_VARS"
