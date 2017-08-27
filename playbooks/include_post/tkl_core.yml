@@ -40,7 +40,7 @@
         msg: apt configured keys are different from initial
 
     - name: apt post installed packages
-      shell: apt list --installed | cut -d[ -f 1 | grep -v 'acl' | grep -v 'cracklib' | grep -v 'libapt-inst' | grep -v 'libcrack2' | grep -v 'libgpm2' | grep -v 'make' | grep -v 'postfix-pcre' | grep -v 'python-apt' | grep -v 'python-apt-common' | grep -v 'python-chardet' | grep -v 'python-colorama' | grep -v 'python-distlib' | grep -v 'python-html5lib' | grep -v 'python-pip' | grep -v 'python-pkg-resources' | grep -v 'python-requests' | grep -v 'python-setuptools' | grep -v 'python-urllib3' | grep -v 'sudo' | grep -v 'vim\/' | grep -v 'vim\-runtime' | grep -v 'wamerican' | grep -v 'php-pear' | grep -v 'pwgen' | grep -v 'python-ldap'
+      shell: apt list --installed | cut -d[ -f 1 | grep -v 'acl' | grep -v 'cracklib' | grep -v 'libapt-inst' | grep -v 'libcrack2' | grep -v 'libgpm2' | grep -v 'make' | grep -v 'postfix-pcre' | grep -v 'python-apt' | grep -v 'python-apt-common' | grep -v 'python-chardet' | grep -v 'python-colorama' | grep -v 'python-distlib' | grep -v 'python-html5lib' | grep -v 'python-pip' | grep -v 'python-pkg-resources' | grep -v 'python-requests' | grep -v 'python-setuptools' | grep -v 'python-urllib3' | grep -v 'sudo' | grep -v 'vim\/' | grep -v 'vim\-runtime' | grep -v 'wamerican' | grep -v 'php-pear' | grep -v 'pwgen' | grep -v 'python-ldap' | grep -v 'gnutls-bin' | grep -v 'libopts25'
       register: apt_pkg_post
 
     - name: debug apt installed packages
@@ -90,3 +90,31 @@
         that: "sshd_pre.stdout_lines == sshd_post.stdout_lines"
         msg: sshd configuration is different from initial
 
+    - name: check for stunnel configuration files
+      stat:
+        path: /etc/stunnel/{{ item }}.conf
+      with_items:
+        - 'shellinabox'
+        - 'webmin'
+      register: stunnel_files
+
+    - name: verify stunnel configuration files
+      fail:
+        msg: "stunnel {{ item.item }} configuration file is missing"
+      when: item.stat.exists == False
+      with_items: "{{ stunnel_files.results }}"
+
+    - name: verify shellinabox service is available
+      uri:
+        url: https://localhost:12320/
+        method: GET
+        status_code: 200
+        validate_certs: no
+
+    - name: verify webmin service is available
+      uri:
+        url: https://localhost:12321
+        method: GET
+        status_code: 200
+        timeout: 120
+        validate_certs: no

@@ -8,7 +8,22 @@
   tasks:
     - name: Wait for appliance container to be available
       wait_for_connection:
-        delay: 20
+        delay: 5
+
+    - name: Set fqdn for container in hostname
+      lineinfile:
+        path: /etc/hostname
+        regexp: '{{ app_name }}'
+        line: '{{ app_name }}.local.lxc'
+        state: present
+
+    - name: Set fqdn for container in hosts
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^([0-9.]*) {{ app_name }}'
+        line: '\1 {{ app_name }}.local.lxc {{ app_name }}'
+        backrefs: yes
+        state: present
 
     - name: Upgrade all installed packages
       shell: apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -q -y upgrade
