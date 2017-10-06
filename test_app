@@ -2,7 +2,7 @@
 
 usage() {
 cat<<EOF
-Usage: $(basename $0) appliance port
+Usage: $(basename $0) appliance port step
 Run the test suite against the tkl-debops plays using a fresh appliance image.
 This test uses the Turnkey Linux LXC appliance to host the appliance that the
 test is run against.
@@ -11,11 +11,18 @@ Arguments:
     appliance       Name of the Turnkey Linux appliance
     port            Port used on the LXC appliance to expose SSH
                     to the test appliance
+    step            one of start, stop, run, srun, test
+                      start will start the appliance and perform all updates
+                      stop will stop and remove the appliance
+                      run will run the test
+                      srun will start the appliance and run the test
+                      test will start the appliance, run the test and stop it if
+                        the test passes.
 EOF
 exit 1
 }
 
-if [[ "$#" != "2" ]]; then
+if [[ "$#" != "3" ]]; then
     usage
 fi
 
@@ -23,14 +30,52 @@ APP_NAME=$1
 APP_PORT=$2
 APP_PASSWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
+DEBOPS_CMD=debops
 EXTRA_VARS="app_name=$APP_NAME app_port=$APP_PORT app_passwd=$APP_PASSWD"
 
-debops playbooks/start_app.yml --extra-vars "$EXTRA_VARS"
-debops playbooks/update_app.yml --extra-vars "$EXTRA_VARS"
+start_app () {
+  $DEBOPS_CMD playbooks/start_app.yml --extra-vars "$EXTRA_VARS"
+  $DEBOPS_CMD playbooks/update_app.yml --extra-vars "$EXTRA_VARS"
+}
 
-debops tkl_${APP_NAME}
-RETVAL=$?
+run_test () {
+  $DEBOPS_CMD tkl_${APP_NAME}
+  return $?
+}
 
-debops playbooks/stop_app.yml --extra-vars "$EXTRA_VARS"
+stop_app () {
+  $DEBOPS_CMD playbooks/stop_app.yml --extra-vars "$EXTRA_VARS"
+}
+
+RETVAL=0
+
+case "$3" in
+  start)
+    start_app
+    ;;
+  stop)
+    stop_app
+    ;;
+  run)
+    run_test
+    RETVAL=$?
+    ;;
+  srun)
+    start_app
+    run_test
+    RETVAL=$?
+    ;;
+  test)
+    start_app
+    run_test
+    RETVAL=$?
+    if [ $? -eq 0 ]; then
+      stop_app
+    fi
+    ;;
+  *)
+    usage
+    RETVAL=-1
+esac
 
 exit $RETVAL
