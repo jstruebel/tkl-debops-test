@@ -69,13 +69,13 @@ case "$3" in
     start_app
     run_test
     RETVAL=$?
-    if [ $? -eq 0 ]; then
+    if [[ $RETVAL -eq 0 ]]; then
       stop_app
     fi
     ;;
   *)
     usage
-    RETVAL=-1
+    RETVAL=1
 esac
 
 exit $RETVAL
