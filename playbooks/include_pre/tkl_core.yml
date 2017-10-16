@@ -18,7 +18,7 @@
       register: apt_pkg_pre
 
     - name: postfix pre settings
-      shell: postconf | grep -v 'process_id' | grep -v 'uucp_' | grep -v 'inet_interfaces = localhost' | grep -v 'mydestination' | grep -v 'mydomain' | grep -v 'myhostname' | grep -v 'mynetworks = 127.0.0.0/8 \[::ffff:127.0.0.0\]/104 \[::1\]/128' | grep -v 'myorigin' | grep -v 'smtp_helo_name' | grep -v 'smtp_tls_' | grep -v 'smtpd_client_restrictions =' | grep -v 'smtpd_recipient_restrictions =' | grep -v 'smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination' | grep -v 'smtpd_tls_' | grep -v 'smtpd_use_tls = yes' | grep -v 'tls_'
+      shell: postconf | grep -v 'process_id' | grep -v 'uucp_' | grep -v 'mydestination' | grep -v 'mydomain' | grep -v 'myhostname' | grep -v 'mynetworks = 127.0.0.0/8 \[::ffff:127.0.0.0\]/104 \[::1\]/128' | grep -v 'myorigin' | grep -v 'smtp_helo_name' | grep -v 'smtp_tls_' | grep -v 'smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination' | grep -v 'smtpd_tls_' | grep -v 'tls_'
       register: postfix_pre
 
     - name: sshd pre settings
