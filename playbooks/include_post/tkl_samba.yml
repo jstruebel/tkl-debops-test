@@ -1,6 +1,6 @@
 ---
 - name: Compare the samba final settings
-  hosts: [ 'tkl_fileserver' ]
+  hosts: [ 'tkl_fileserver', 'tkl_mediaserver' ]
   gather_facts: False
   become: True
 
