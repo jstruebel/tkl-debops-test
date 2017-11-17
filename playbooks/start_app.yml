@@ -78,6 +78,12 @@
     inv_hosts_path: '{{ playbook_dir }}/../ansible/inventory/inv_{{ app_name }}_{{ app_port }}'
 
   tasks:
+    - name: Wait for network connection to be available
+      wait_for: 
+        host: '{{ ansible_host }}'
+        port: '{{ app_port }}'
+        delay: 10
+
     - name: Create ansible inventory file
       template:
         src: templates/inv_host.j2
