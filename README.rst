@@ -56,11 +56,11 @@ against it, and remove the container. This script requires that the LXC host be
 configured in the ansible inventory and either use public keys or have SSH password
 configured in the inventory file. To use the script enter the following command::
 
-    $ ./test_app <appliance> <port>
+    $ ./test_app <appliance> <port> <action>
 
 For example to test the core appliance::
 
-    $ ./test_app core 2222
+    $ ./test_app core 2222 test
 
 Development
 -----------
