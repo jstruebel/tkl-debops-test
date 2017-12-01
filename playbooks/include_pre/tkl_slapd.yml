@@ -1,0 +1,15 @@
+---
+- name: Capture the slapd initial settings
+  hosts: [ 'tkl_openldap' ]
+  gather_facts: False
+  become: True
+
+  tasks:
+    - name: slapd pre settings
+      shell: slapcat -n 0 -o ldif-wrap=no | sort | grep -v 'entryCSN:' | grep -v 'modifyTimestamp:' | grep -v 'olcAccess:' | grep -v 'olcRootPW:' | grep -v 'olcTLSCACertificateFile:' | grep -v 'olcTLSCertificateFile:' | grep -v 'olcTLSCertificateKeyFile:'
+      register: slapd_pre
+
+    - name: slapd pre data
+      shell: slapcat -o ldif-wrap=no
+      register: slapd_data_pre
+

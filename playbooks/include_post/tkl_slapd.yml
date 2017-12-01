@@ -1,0 +1,41 @@
+---
+- name: Compare the slapd final settings
+  hosts: [ 'tkl_openldap' ]
+  gather_facts: False
+  become: True
+
+  tasks:
+    - name: slapd post settings
+      shell: slapcat -n 0 -o ldif-wrap=no | sort | grep -v 'entryCSN:' | grep -v 'modifyTimestamp:' | grep -v 'olcAccess:' | grep -v 'authorizedService eq' | grep -v 'entryCSN eq' | grep -v 'entryUUID eq' | grep -v 'host eq' | grep -v 'olcRootPW:' | grep -v 'olcSecurity:' | grep -v 'olcTLSCACertificateFile:' | grep -v 'olcTLSCertificateFile:' | grep -v 'olcTLSCertificateKeyFile:' | grep -v 'olcTLSDHParamFile:'
+      register: slapd_post
+
+    - name: debug slapd settings
+      debug:
+        msg: '{{ item.0 + " : " + item.1 }}'
+      with_together:
+        - '{{ slapd_pre.stdout_lines }}'
+        - '{{ slapd_post.stdout_lines }}'
+      when: slapd_pre.stdout_lines != slapd_post.stdout_lines and item.0 != item.1
+
+    - name: compare slapd settings
+      assert:
+        that: "slapd_pre.stdout_lines == slapd_post.stdout_lines"
+        msg: slapd configuration is different from initial
+
+    - name: slapd post data
+      shell: slapcat -o ldif-wrap=no
+      register: slapd_data_post
+
+    - name: debug slapd data
+      debug:
+        msg: '{{ item.0 + " : " + item.1 }}'
+      with_together:
+        - '{{ slapd_data_pre.stdout_lines }}'
+        - '{{ slapd_data_post.stdout_lines }}'
+      when: slapd_data_pre.stdout_lines != slapd_data_post.stdout_lines and item.0 != item.1
+
+    - name: compare slapd data
+      assert:
+        that: "slapd_data_pre.stdout_lines == slapd_data_post.stdout_lines"
+        msg: slapd data is different from initial
+
