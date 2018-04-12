@@ -74,7 +74,7 @@
         msg: postfix configuration is different from initial
 
     - name: sshd post settings
-      shell: sshd -T | grep -v 'banner' | grep -v 'subsystem sftp internal-sftp'
+      shell: sshd -T | grep -v 'banner' | grep -v 'subsystem sftp internal-sftp' | grep -v 'compression yes'
       register: sshd_post
 
     - name: debug sshd settings

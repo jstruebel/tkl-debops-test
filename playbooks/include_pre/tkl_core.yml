@@ -22,6 +22,6 @@
       register: postfix_pre
 
     - name: sshd pre settings
-      shell: sshd -T | grep -v 'subsystem sftp /usr/lib/openssh/sftp-server'
+      shell: sshd -T | grep -v 'subsystem sftp /usr/lib/openssh/sftp-server' | grep -v 'compression delayed'
       register: sshd_pre
 
