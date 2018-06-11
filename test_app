@@ -72,7 +72,7 @@ case "$3" in
     if [[ $RETVAL -eq 0 ]]; then
       stop_app
     else
-      cp ~/.ssh/known_hosts ./known_hosts
+      cp ~/.ssh/known_hosts ./known_hosts_${APP_NAME}_${APP-PORT}
     fi
     ;;
   *)

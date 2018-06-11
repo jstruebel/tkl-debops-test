@@ -48,5 +48,11 @@ cleanup_test_failure:
   script:
     - ls ansible/inventory
     - ls
-    - cat known_hosts
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - touch ~/.ssh/known_hosts
+    - ansible-playbook playbooks/setup.yml
+    - echo -e "cat > ansible/inventory/hosts <<EOF\nlxc-host $LXC_HOST_OPTS\n\n[lxc_hosts]\nlxc-host\nEOF" | bash
+    - echo -e "files=$(find -maxdepth 1 -type f -name known_hosts*); for file in $files; do cat $file >> ~/.ssh/known_hosts; done" | bash
+    - echo -e "files=$(find ansible/inventory/ -maxdepth 1 -type f); for file in $files; do app=$(echo $file | cut -d'_' -f2 | sed -e 's/_//g'); port=$(echo $file | cut -d'_' -f3 | sed -e 's/_//g'); ./test_app $app $port stop; done" | bash
   when: on_failure
