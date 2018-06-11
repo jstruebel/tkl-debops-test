@@ -16,6 +16,7 @@
 
 stages:
   - test
+  - cleanup_test
   - publish
 
 test_core:
@@ -41,3 +42,11 @@ test_openldap:
   variables:
     APP_NAME: "openldap"
     APP_PORT: "2225"
+
+cleanup_test_failure:
+  stage: cleanup_test
+  script:
+    - ls ansible/inventory
+    - ls
+    - cat known_hosts
+  when: on_failure
