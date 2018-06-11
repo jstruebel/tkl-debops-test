@@ -1,12 +1,16 @@
-.job_template: &job_definition
-  stage: test
-  script:
+.before_template:
+  before_script: &before_definition
     - git clone $TKL_DEBOPS_REPO
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - touch ~/.ssh/known_hosts
     - ansible-playbook playbooks/setup.yml
     - echo -e "cat > ansible/inventory/hosts <<EOF\nlxc-host $LXC_HOST_OPTS\n\n[lxc_hosts]\nlxc-host\nEOF" | bash
+
+.job_template: &job_definition
+  stage: test
+  before_script: *before_definition
+  script:
     - ./test_app $APP_NAME $APP_PORT test
   artifacts:
     paths:
@@ -45,14 +49,8 @@ test_openldap:
 
 cleanup_test_failure:
   stage: cleanup_test
+  before_script: *before_definition
   script:
     - ls ansible/inventory
-    - ls
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - touch ~/.ssh/known_hosts
-    - ansible-playbook playbooks/setup.yml
-    - echo -e "cat > ansible/inventory/hosts <<EOF\nlxc-host $LXC_HOST_OPTS\n\n[lxc_hosts]\nlxc-host\nEOF" | bash
-    - echo -e "files=$(find -maxdepth 1 -type f -name known_hosts*); for file in $files; do cat $file >> ~/.ssh/known_hosts; done" | bash
     - echo -e "files=$(find ansible/inventory/ -maxdepth 1 -type f); for file in $files; do app=$(echo $file | cut -d'_' -f2 | sed -e 's/_//g'); port=$(echo $file | cut -d'_' -f3 | sed -e 's/_//g'); ./test_app $app $port stop; done" | bash
   when: on_failure
