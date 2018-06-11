@@ -1,7 +1,7 @@
 ---
-- include: include_pre/tkl_core.yml
+- import_playbook: include_pre/tkl_core.yml
 
-- include: site.yml
+- import_playbook: site.yml
 
-- include: include_post/tkl_core.yml
+- import_playbook: include_post/tkl_core.yml
 
