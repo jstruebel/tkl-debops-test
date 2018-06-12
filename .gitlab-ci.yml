@@ -52,5 +52,6 @@ cleanup_test_failure:
   before_script: *before_definition
   script:
     - ls -l ansible/inventory
-    - echo -e "files=$(find ansible/inventory/ -maxdepth 1 -type f -name inv_*); for file in $files; do app=$(echo $file | cut -d'_' -f2 | sed -e 's/_//g'); port=$(echo $file | cut -d'_' -f3 | sed -e 's/_//g'); ./test_app $app $port stop; done" | bash
+    - (files=$(find ansible/inventory/ -maxdepth 1 -type f -name inv_*); for file in $files; do app=$(echo $file | cut -d'_' -f2 | sed -e 's/_//g'); port=$(echo $file | cut -d'_' -f3 | sed -e 's/_//g'); echo $app $port; ./test_app $app $port stop; done);
+    - ls -l ansible/inventory
   when: on_failure
