@@ -21,6 +21,10 @@
       shell: postconf | grep -v 'process_id' | grep -v 'uucp_' | grep -v 'mydestination' | grep -v 'mydomain' | grep -v 'myhostname' | grep -v 'mynetworks = 127.0.0.0/8 \[::ffff:127.0.0.0\]/104 \[::1\]/128' | grep -v 'myorigin' | grep -v 'smtp_helo_name' | grep -v 'smtp_tls_' | grep -v 'smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination' | grep -v 'smtpd_tls_' | grep -v 'tls_'
       register: postfix_pre
 
+    - name: postfix aliases db pre settings
+      shell: postalias -s /etc/aliases | grep -v 'YP_'
+      register: postfix_aliases_pre
+
     - name: sshd pre settings
       shell: sshd -T | grep -v 'subsystem sftp /usr/lib/openssh/sftp-server' | grep -v 'compression delayed' | grep -v 'kexalgorithms'
       register: sshd_pre

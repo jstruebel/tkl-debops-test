@@ -73,6 +73,23 @@
         that: "postfix_pre.stdout_lines == postfix_post.stdout_lines"
         msg: postfix configuration is different from initial
 
+    - name: postfix aliases db post settings
+      shell: postalias -s /etc/aliases | grep -v 'YP_' | grep -v 'root:'
+      register: postfix_aliases_post
+
+    - name: debug postfix aliases settings
+      debug:
+        msg: '{{ item.0 + " : " + item.1 }}'
+      with_together:
+        - '{{ postfix_aliases_pre.stdout_lines }}'
+        - '{{ postfix_aliases_post.stdout_lines }}'
+      when: postfix_aliases_pre.stdout_lines != postfix_aliases_post.stdout_lines and item.0 != item.1
+
+    - name: compare postfix aliases settings
+      assert:
+        that: "postfix_aliases_pre.stdout_lines == postfix_aliases_post.stdout_lines"
+        msg: postfix aliases configuration is different from initial
+
     - name: sshd post settings
       shell: sshd -T | grep -v 'banner' | grep -v 'subsystem sftp internal-sftp'| grep -v 'compression yes' | grep -v 'kexalgorithms'
       register: sshd_post
