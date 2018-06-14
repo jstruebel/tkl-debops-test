@@ -57,3 +57,18 @@ cleanup_test_failure:
     - (files=$(find ansible/inventory/ -maxdepth 1 -type f -name inv_*); for file in $files; do app=$(echo $file | cut -d'_' -f2 | sed -e 's/_//g'); port=$(echo $file | cut -d'_' -f3 | sed -e 's/_//g'); echo Cleaning up $app on $port; ./test_app $app $port stop; done);
     - ls -l ansible/inventory
   when: on_failure
+
+publish_github:
+  stage: publish
+  script:
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$GITHUB_SSH_KEY" > ~/.ssh/id_rsa
+    - ssh-keyscan -H github.com > ~/.ssh/known_hosts
+    - chmod 600 ~/.ssh/*
+    - git remote add github git@github.com:$GITHUB_PATH
+    - git fetch github
+    - git push github "$CI_BUILD_REF_NAME" -f
+  when: manual
+  variables:
+    GIT_STRATEGY: clone
